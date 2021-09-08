@@ -1,0 +1,111 @@
+#! /usr/bin/env python3
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
+
+from enum import Enum
+
+from main_window import Ui_MainWindow
+
+import sys
+
+class TimerState(Enum):
+    IDLE = 0
+    FOCUS = 1
+    REST = 2
+
+class PomodoroTimer(QObject):
+    tick = pyqtSignal(int)
+    state_change = pyqtSignal(TimerState)
+    finished = pyqtSignal(TimerState)
+
+    def __init__(self, focus_time_s, rest_time_s, parent=None):
+        super(PomodoroTimer, self).__init__(parent)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.tick_cb)
+        self.state = TimerState.IDLE
+        self.countdown_s = 0
+        self.focus_time = focus_time_s
+        self.rest_time = rest_time_s
+
+    def tick_cb(self):
+        if (self.countdown_s > 0):
+            self.countdown_s -= 1
+            self.tick.emit(self.countdown_s)
+
+        if self.countdown_s == 0:
+            self.timer.stop()
+            self.finished.emit(self.state)
+
+    def start(self, state, time_s):
+        self.set_state(state)
+        self.countdown_s = time_s
+        if state != TimerState.IDLE:
+            self.timer.start(1000)
+            self.tick.emit(self.countdown_s)
+
+    def set_state(self, state):
+        if (state == TimerState.FOCUS):
+            self.countdown_s = self.focus_time
+        elif (state == TimerState.REST):
+            self.countdown_s = self.rest_time
+        elif (state == TimerState.IDLE):
+            self.countdown_s = 0
+            self.timer.stop()
+            return
+        else:
+            raise Exception("Wrong input to PomodoroTimer.start()")
+        self.state = state
+        self.state_change.emit(self.state)
+
+
+
+
+class Window(QMainWindow, Ui_MainWindow):
+    def display_s_to_clock(self, total_seconds):
+        m = total_seconds / 60
+        s = total_seconds % 60
+        text = "%02d:%02d" % (m, s)
+        self.pushButton_status.setText(text)
+
+    def on_state_change(self, state):
+        # Notify
+        pass
+
+    def on_focus_start(self):
+        self.timer.start(
+            TimerState.FOCUS,
+            self.spinBox_focus_time_minutes.value() * 60)
+        self.pushButton_status.setStyleSheet("background-color: red")
+
+    def on_rest_start(self):
+        self.timer.start(
+            TimerState.REST,
+            self.spinBox_rest_time_minutes.value() * 60)
+        self.pushButton_status.setStyleSheet("background-color: green")
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setupUi(self)
+
+        self.timer = PomodoroTimer(
+            self.spinBox_focus_time_minutes.value() * 60,
+            self.spinBox_rest_time_minutes.value() * 60)
+
+        self.timer.tick.connect(self.display_s_to_clock)
+
+        self.timer.state_change.connect(self.on_state_change)
+
+        self.pushButton_focus.clicked.connect(self.on_focus_start)
+        self.pushButton_rest.clicked.connect(self.on_rest_start)
+
+def main():
+    app = QApplication([])
+
+    win = Window()
+    win.show()
+
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
