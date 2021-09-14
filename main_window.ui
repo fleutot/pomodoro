@@ -2,16 +2,19 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
-    <height>267</height>
+    <width>415</width>
+    <height>86</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Pomodoro</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QSpinBox" name="spinBox_focus_time_minutes">
@@ -82,9 +85,6 @@
     </property>
     <property name="text">
      <string>Inactive</string>
-    </property>
-    <property name="flat">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>

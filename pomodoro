@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 
 from enum import Enum
 
 from main_window import Ui_MainWindow
+from notification import Ui_NotificationDialog
 
 import sys
 
@@ -59,6 +60,10 @@ class PomodoroTimer(QObject):
         self.state_change.emit(self.state)
 
 
+class Notification(QDialog, Ui_NotificationDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setupUi(self)
 
 
 class Window(QMainWindow, Ui_MainWindow):
@@ -84,6 +89,19 @@ class Window(QMainWindow, Ui_MainWindow):
             self.spinBox_rest_time_minutes.value() * 60)
         self.pushButton_status.setStyleSheet("background-color: green")
 
+    def on_timer_finished(self, state):
+        notification_win = Notification()
+
+        if state == TimerState.FOCUS:
+            notification_win.label.setText("Focus period ended.")
+        elif state == TimerState.REST:
+            notification_win.label.setText("Rest period ended.")
+        else:
+            notification_win.label.setText("Period of unknown type (%d) ended.",
+                                           state)
+
+        notification_win.exec()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
@@ -93,6 +111,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.spinBox_rest_time_minutes.value() * 60)
 
         self.timer.tick.connect(self.display_s_to_clock)
+        self.timer.finished.connect(self.on_timer_finished)
 
         self.timer.state_change.connect(self.on_state_change)
 

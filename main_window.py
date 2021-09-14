@@ -14,7 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(401, 77)
+        MainWindow.setWindowModality(QtCore.Qt.WindowModal)
+        MainWindow.resize(415, 86)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.spinBox_focus_time_minutes = QtWidgets.QSpinBox(self.centralwidget)
@@ -36,7 +37,6 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(32)
         self.pushButton_status.setFont(font)
-        #self.pushButton_status.setFlat(True)
         self.pushButton_status.setObjectName("pushButton_status")
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -45,7 +45,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Pomodoro"))
         self.pushButton_focus.setText(_translate("MainWindow", "Focus"))
         self.pushButton_rest.setText(_translate("MainWindow", "Rest"))
         self.pushButton_status.setText(_translate("MainWindow", "Inactive"))
