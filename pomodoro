@@ -94,6 +94,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         if state == TimerState.FOCUS:
             notification_win.label.setText("Focus period ended.")
+            self.pushButton_status.setStyleSheet("background-color: yellow")
         elif state == TimerState.REST:
             notification_win.label.setText("Rest period ended.")
         else:
